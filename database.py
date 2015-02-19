@@ -1,11 +1,13 @@
 from influxdb import InfluxDBClient
 import json
 
-class database:
+class Database:
 
-    client
+    def __init__(self):
+        self.client = None
 
-    def connectToDatabase():
+    # Connect to 'Munktell' database hosted on influxDB
+    def connectToDatabase(self):
         host = 'localhost'
         port = 8086
         user = 'root'
@@ -14,26 +16,26 @@ class database:
         dbuser = 'grupp5-context'
         dbuser_password = 'grupp5'
         query = 'select * from "test1" limit 5;'
-        client = InfluxDBClient(host, port, user, password, dbname)
-        return client
+        self.client = InfluxDBClient(host, port, user, password, dbname)
 
-    def requestData(query):
-        global client
-        result = client.query(query)
+    # Send request to influxDB to fetch data corresponding to the query 'query'
+    def requestData(self, query):
+        result = self.client.query(query)
         str2 = "".join(str(v) for v in result)
         str2 = str2.replace("'","\"")
-        # print("Result: {0}".format(str2))
         data = json.loads(str2)
         return data
 
-    def sendPoints(data):
+    # NOT IMPLEMENTED
+    def sendPoints(self, data):
         points = ""
         json_body = "[{\"name\" : \"log_lines\",\"columns\" : [\"line\"],\"points\" : [[\"here's some useful log info from paul@influxdb.com\"]]}]"
         for s in data2:
             points = points + s[2]
 
-        # print("Result: {0}".format(points))
         client.write_points(json_body)
-        result = client.query('select line from log_lines;')
+        result = self.client.query('select line from log_lines;')
 
+    # NOT IMPLEMENTED
     def switchDatabase():
+        result = 0
