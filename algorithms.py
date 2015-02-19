@@ -8,11 +8,21 @@ global client
 class Algorithms:
 
     def __init__(self):
-        self.list = None
+        self.list = []
 
     def addToList(self, points):
+        if len(points) > 1: 
+            points.pop()
+
+
         newList = points + self.list
-        while len(newList) > 1200
+        while len(newList) > 10:
             newList.pop()
 
         self.list = newList
+
+    def getLength(self):
+        return len(self.list)
+
+    def getList(self):
+        return self.list

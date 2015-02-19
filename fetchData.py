@@ -9,6 +9,7 @@ from algorithms import Algorithms
 
 global lastTime
 global database
+global algorithms
 
 # Start thread to run work every 60 seconds
 def work ():
@@ -17,11 +18,8 @@ def work ():
 
 # Print sequence_number from points to determine if data is fetchd in the correct order
 def analysePoints(data):
-   data2 = data["points"]
-   if len(data2) > 1:
-       data2.pop()
 
-   for s in reversed(data2):
+   for s in reversed(data):
        print(time.strftime('%Y-%m-%d %H:%M:%S.000', time.localtime(s[0])))
 
 # Set time when last point was fetched
@@ -36,13 +34,19 @@ def setTime(data):
 def check():
     query = 'select * from "test1" where time > \'' + lastTime + '\';'
     data = database.requestData(query)
-    analysePoints(data)
+    algorithms.addToList(data["points"])
+    print(algorithms.getLength())
+    print("-----------------------------------------")
+    analysePoints(algorithms.getList())
+    print("-----------------------------------------")
     setTime(data)
 
 # Initialize database variable, connect to database, send query to influxDB to set the current time
 def init():
     global database
+    global algorithms
     database = Database()
+    algorithms = Algorithms()
     database.connectToDatabase()
     query = 'select * from "test1" limit 2;'
     data = database.requestData(query)
