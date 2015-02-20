@@ -14,12 +14,12 @@ global algorithms
 # Start thread to run work every 60 seconds
 def work ():
     check()
-    threading.Timer(5, work).start()
+    threading.Timer(10, work).start()
 
 # Print sequence_number from points to determine if data is fetchd in the correct order
 def analysePoints(data):
 
-   for s in reversed(data):
+   for s in data:
        print(time.strftime('%Y-%m-%d %H:%M:%S.000', time.localtime(s[0])))
 
 # Set time when last point was fetched
@@ -35,10 +35,11 @@ def check():
     query = 'select * from "test1" where time > \'' + lastTime + '\';'
     data = database.requestData(query)
     algorithms.addToList(data["points"])
+    algorithms.checkForChange(20)
     # print(algorithms.getLength())
-    print("-----------------------------------------")
-    analysePoints(algorithms.getList())
-    print("-----------------------------------------")
+    # print("-----------------------------------------")
+    # analysePoints(algorithms.getList())
+    # print("-----------------------------------------")
     setTime(data)
 
 # Initialize database variable, connect to database, send query to influxDB to set the current time
