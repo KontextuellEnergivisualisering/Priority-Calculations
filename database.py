@@ -1,6 +1,20 @@
 from influxdb import InfluxDBClient
 import json
 
+
+def fixData(data):
+    baseStr=["time", "sequence_number", "power", "energy"]
+    tmp=[]
+    for i in range(len(data["points"])) :
+        tmp=[]
+        tmp.append(data["points"][i][data["columns"].index(baseStr[0])])
+        tmp.append(data["points"][i][data["columns"].index(baseStr[1])])
+        tmp.append(data["points"][i][data["columns"].index(baseStr[2])])
+        tmp.append(data["points"][i][data["columns"].index(baseStr[3])])
+        data["points"][i] = tmp
+
+    return data
+
 class Database:
 
     def __init__(self):
@@ -23,7 +37,9 @@ class Database:
         result = self.client.query(query)
         str2 = "".join(str(v) for v in result)
         str2 = str2.replace("'","\"")
+        # print("Result: " + str2)
         data = json.loads(str2)
+        data=fixData(data)
         return data
 
     # NOT IMPLEMENTED
