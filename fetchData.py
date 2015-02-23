@@ -34,8 +34,7 @@ def setTime(data):
 def check():
     query = 'select * from "test1" where time > \'' + lastTime + '\';'
     data = database.requestData(query)
-    algorithms.addToList(data["points"])
-    algorithms.checkForChange(20)
+    algorithms.updatePoints(data["points"])
     # print(algorithms.getLength())
     # print("-----------------------------------------")
     # analysePoints(algorithms.getList())
