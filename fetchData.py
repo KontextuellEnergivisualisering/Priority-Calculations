@@ -3,13 +3,13 @@ import json
 import threading
 import time
 import datetime
-from database import Database
-from algorithms import Algorithms
-
+import database
+from transitionAlgorithms import TransitionAlgorithms
+from averageAlgorithms import AverageAlgorithms
 
 global lastTime
-global database
-global algorithms
+global transitionAlgorithms
+global averageAlgorithms
 
 # Start thread to run work every 60 seconds
 def work ():
@@ -34,19 +34,22 @@ def setTime(data):
 def check():
     query = 'select * from "test1" where time > \'' + lastTime + '\';'
     data = database.requestData(query)
-    algorithms.updatePoints(data["points"])
-    # print(algorithms.getLength())
+    transitionAlgorithms.updatePoints(data["points"])
+    average = averageAlgorithms.updateAverage(data["points"])
+
+    print("Average: " + str(average))
+    # print(transitionAlgorithms.getLength())
     # print("-----------------------------------------")
-    # analysePoints(algorithms.getList())
+    # analysePoints(transitionAlgorithms.getList())
     # print("-----------------------------------------")
     setTime(data)
 
 # Initialize database variable, connect to database, send query to influxDB to set the current time
 def init():
-    global database
-    global algorithms
-    database = Database()
-    algorithms = Algorithms()
+    global transitionAlgorithms
+    global averageAlgorithms
+    transitionAlgorithms = TransitionAlgorithms()
+    averageAlgorithms = AverageAlgorithms()
     database.connectToDatabase()
     query = 'select * from "test1" limit 2;'
     data = database.requestData(query)

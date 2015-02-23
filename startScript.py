@@ -1,4 +1,5 @@
 from fetchData import Fetch
+from averageAlgorithms import AverageAlgorithms
 
 def main():
     Fetch.start()
