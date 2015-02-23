@@ -1,19 +1,17 @@
 import time
 from find import find
 
-global client
-
 # Contains algortithms for detecting change in data points
-class Algorithms:
+class TransitionAlgorithms:
 
     # Initialize the list to a empty list
     list = []
-    stableThreshold = 0.005
-    slowThreshold = 0.02
-    fastThreshold = 0.01
-    stableTime = 5
-    fastTime = 10
-    slowTime = 30
+    stableThreshold = 0.005     # Threshold for power change when stable
+    slowThreshold = 0.02        # Threshold for power change when slow transition
+    fastThreshold = 0.01        # Threshold for power change when fast transition
+    stableTime = 5              # Minimum time to determine if power change is stable
+    fastTime = 10               # Minimum time to determine if power change is fast
+    slowTime = 30               # Minimum time to determine if power change is slow
     fastChangeFound = 0
     slowChangeFound = 0
 
@@ -31,11 +29,12 @@ class Algorithms:
             self.lookForSlowChange()
             # print("-------------------------------------")
 
+    # Makes sure the points are less then 3600, if not less it removes points until number of points are less then 3600
     def keepListUpdated(self, points):
         if len(points) > 1:
             points.pop()
 
-
+        # Concatenate new points with old points
         newList = points + self.list
         while len(newList) > 3600:
             newList.pop()
@@ -46,11 +45,6 @@ class Algorithms:
     def checkForChange(self, timeSpan):
         # Find the index of the element whose time is the current time (self.list[0][0]) subtracted with the specified timespan
         index = find(self.list, self.list[0][0] - timeSpan)
-        # print("find " + time.strftime('%Y-%m-%d %H:%M:%S.000', time.localtime(self.list[index][0])))
-        # TEST OUTPUT CODE FOR THE POINT DATA
-        # str1 = "".join(str(v)+" " for v in self.list[0])
-        # str2 = "".join(str(v)+" " for v in self.list[index])
-        # print("points = "+str1 + " | " + str2)
         # Calculate the difference between the two points to get the change in power
         change = (self.list[0][2] / self.list[index][2]) - 1
         print("ennergy change (%) = " + str(round(change * 100, 2)))
@@ -74,6 +68,7 @@ class Algorithms:
                 print("Found a SLOW transition at time: " + str(time.strftime('%Y-%m-%d %H:%M:%S.000', time.localtime(self.list[0][0]))))
                 print("Power difference = " + str(powerChange))
 
+    # Determine if a change in power has occured
     def lookForChange(self, shortTime, longTime):
         tup1 = self.checkForChange(shortTime)
         shortChange = tup1["change"]
@@ -86,6 +81,7 @@ class Algorithms:
         else:
             return 0
 
+    # Calculate the difference in power between two points
     def calculateHeightDiff(self, pointNow, pointOld):
         diff = pointNow[2] - pointOld[2]
         return diff
