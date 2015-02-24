@@ -1,29 +1,20 @@
 import time
 
+# Find the index of the point at 'ti' seconds from the current time
 def find(points, ti):
     index = binarySearch(points, ti)
-    # print("index before = "+str(index))
+    # If the point were found outside of the point list, or a non exact match, the index is shifted
+    # one step to the left to avoid unspecified problems with time
     if index >= len(points) or points[index][0] != ti:
         index = index - 1
 
-    # print("length = "+str(len(points)))
-    # print("index after = "+str(index))
-    # print("time = "+str(time.strftime('%Y-%m-%d %H:%M:%S.000', time.localtime(ti))))
     return index
 
+# Binary search algorithm for finding the point whose time is 'x' or if 'x' can't be found, the point
+# to the rigth of point closest to 'x'
 def binarySearch(a, x, lo=0, hi=None):
-    """Return the index where to insert item x in list a, assuming a is sorted.
-
-    The return value i is such that all e in a[:i] have e < x, and all e in
-    a[i:] have e >= x.  So if x already appears in the list, a.insert(x) will
-    insert just before the leftmost x already there.
-
-    Optional args lo (default 0) and hi (default len(a)) bound the
-    slice of a to be searched.
-    """
-
     if lo < 0:
-        raise ValueError('lo must be non-negative')
+        raise ValueError('lo must be >= 0')
     if hi is None:
         hi = len(a)
     while lo < hi:
@@ -31,20 +22,3 @@ def binarySearch(a, x, lo=0, hi=None):
         if a[mid][0] < x: hi = mid
         else: lo = mid+1
     return lo
-
-# Returns the average difference in SECONDS between the latest 'num' number of points
-# def findSampleDiff(points, num):
-#     mySum = 0
-#     num = num if num < len(points) else (len(points) - 1)
-#     diff = 0
-#     if num > 1:
-#         for i in range(num):
-#             mySum = mySum + (points[i][0] - points[i + 1][0])
-#
-#         diff = mySum / num
-#     else:
-#         diff = 0
-#
-#     print("diff = "+str(diff))
-#
-#     return diff
