@@ -3,15 +3,13 @@ import json
 
 global client
 
-def fixData(data):
-    baseStr=["time", "sequence_number", "power", "energy"]
+def fixDataGen(data, baseStr):
     tmp=[]
     for i in range(len(data["points"])) :
         tmp=[]
-        tmp.append(data["points"][i][data["columns"].index(baseStr[0])])
-        tmp.append(data["points"][i][data["columns"].index(baseStr[1])])
-        tmp.append(data["points"][i][data["columns"].index(baseStr[2])])
-        tmp.append(data["points"][i][data["columns"].index(baseStr[3])])
+        for st in baseStr:
+            tmp.append(data["points"][i][data["columns"].index(st)])
+
         data["points"][i] = tmp
 
     return data
@@ -36,16 +34,29 @@ def requestData(query):
     str2 = str2.replace("'","\"")
     # print("Result: " + str2)
     data = json.loads(str2)
-    data=fixData(data)
+    data = fixDataGen(data, ["time", "sequence_number", "power", "energy"])
+    return data
+
+def requestEventData(query):
+    switchDatabase("grupp5")
+    result = client.query(query)
+    switchDatabase("Munktell")
+    str2 = "".join(str(v) for v in result)
+    str2 = str2.replace("'","\"")
+    # print("Result: " + str2)
+    data = json.loads(str2)
+    data = fixDataGen(data, ["time", "sequence_number", "id", "value", "priority"])
     return data
 
 # NOT IMPLEMENTED
-def sendAverage(average):
+def sendEvent(id, value, priority):
     switchDatabase("grupp5")
-    # points = ""
-    json_body = "[{\"name\" : \"average_v1\",\"columns\" : [\"average\"],\"points\" : [[" + str(average) + "]]}]"
+    json_body = "[{\"name\" : \"events\",\"columns\" : [\"id\", \"value\", \"priority\"],\"points\" : [[\"" + id + "\", " + str(value) + ", " + str(priority) + "]]}]"
     client.write_points(json_body)
-    result = client.query('select average from average_v1;')
+    # result = client.query('select average from average_v1;')
+    # str2 = "".join(str(v) for v in result)
+    # str2 = str2.replace("'","\"")
+    # print("Result from average_v1: " + str2)
     switchDatabase("Munktell")
 
 
