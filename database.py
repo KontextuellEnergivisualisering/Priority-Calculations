@@ -22,9 +22,6 @@ def connectToDatabase():
     user = 'root'
     password = 'root'
     dbname = 'Munktell'
-    dbuser = 'grupp5-context'
-    dbuser_password = 'grupp5'
-    query = 'select * from "test1" limit 5;'
     client = InfluxDBClient(host, port, user, password, dbname)
 
 # Send request to influxDB to fetch data corresponding to the query 'query'
@@ -32,7 +29,6 @@ def requestData(query):
     result = client.query(query)
     str2 = "".join(str(v) for v in result)
     str2 = str2.replace("'","\"")
-    # print("Result: " + str2)
     data = json.loads(str2)
     data = fixDataGen(data, ["time", "sequence_number", "power", "energy"])
     return data
@@ -43,20 +39,24 @@ def requestEventData(query):
     switchDatabase("Munktell")
     str2 = "".join(str(v) for v in result)
     str2 = str2.replace("'","\"")
-    # print("Result: " + str2)
     data = json.loads(str2)
-    data = fixDataGen(data, ["time", "sequence_number", "id", "value", "priority"])
+    data = fixDataGen(data, ["time", "sequence_number", "value", "id", "priority"])
     return data
 
-# NOT IMPLEMENTED
-def sendEvent(id, value, priority):
+def sendMultipleEvent(list):
     switchDatabase("grupp5")
-    json_body = "[{\"name\" : \"events\",\"columns\" : [\"id\", \"value\", \"priority\"],\"points\" : [[\"" + id + "\", " + str(value) + ", " + str(priority) + "]]}]"
+    points = ""
+    print("--------------------------------------")
+    for item in list:
+        a = "[" + str(item[0]) + ", \"" + item[1] + "\", " + str(item[2]) + "],"
+        print(a)
+        points += a
+
+    # print("--------------------------------------")
+    points = points[:-1]
+    json_body = "[{\"name\" : \"events\",\"columns\" : [\"value\", \"id\", \"priority\"],\"points\" : [" + points + "]}]"
+    # print("write: " + json_body)
     client.write_points(json_body)
-    # result = client.query('select average from average_v1;')
-    # str2 = "".join(str(v) for v in result)
-    # str2 = str2.replace("'","\"")
-    # print("Result from average_v1: " + str2)
     switchDatabase("Munktell")
 
 
