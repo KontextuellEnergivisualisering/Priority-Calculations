@@ -6,21 +6,18 @@ import datetime
 import database
 from transitionAlgorithms import TransitionAlgorithms
 from averageAlgorithms import AverageAlgorithms
+from sendFramework import SendFramework
+import Algorithms
 
 global lastTime
 global transitionAlgorithms
 global averageAlgorithms
+global sendFramework
 
 # Start thread to run work every 60 seconds
 def work ():
     check()
-    threading.Timer(10, work).start()
-
-# Print sequence_number from points to determine if data is fetchd in the correct order
-def analysePoints(data):
-
-   for s in data:
-       print(time.strftime('%Y-%m-%d %H:%M:%S.000', time.localtime(s[0])))
+    threading.Timer(20, work).start()
 
 # Set time when last point was fetched
 def setTime(data):
@@ -36,20 +33,22 @@ def check():
     data = database.requestData(query)
     transitionAlgorithms.updatePoints(data["points"])
     average = averageAlgorithms.updateAverage(data["points"])
-
-    print("Average: " + str(average))
-    # print(transitionAlgorithms.getLength())
-    # print("-----------------------------------------")
-    # analysePoints(transitionAlgorithms.getList())
-    # print("-----------------------------------------")
+    sendFramework.sendAverages(transitionAlgorithms.list)
     setTime(data)
 
 # Initialize database variable, connect to database, send query to influxDB to set the current time
 def init():
     global transitionAlgorithms
     global averageAlgorithms
+    global sendFramework
     transitionAlgorithms = TransitionAlgorithms()
     averageAlgorithms = AverageAlgorithms()
+    sendFramework = SendFramework()
+    sendFramework.addFunction(averageAlgorithms.calculateAverage, "long")
+    sendFramework.addFunction(transitionAlgorithms.lookForFastChange, "minute")
+    sendFramework.addFunction(transitionAlgorithms.lookForSlowChange, "minute")
+    sendFramework.addFunction(Algorithms.min, "long")
+    sendFramework.addFunction(Algorithms.max, "long")
     database.connectToDatabase()
     query = 'select * from "test1" limit 2;'
     data = database.requestData(query)
