@@ -12,6 +12,7 @@ class AverageAlgorithms:
     def __init__(self):
         average = 0
 
+    # Calculates the power based on the points, the 'lastHourData' is not used
     def calculateAverage(self, points, lastHourData):
         f = lambda x: x[2]
         newSum = sum(map(f, points))

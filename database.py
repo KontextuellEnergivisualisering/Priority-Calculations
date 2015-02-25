@@ -3,6 +3,7 @@ import json
 
 global client
 
+# Order data in a specific order specified by baseStr
 def fixDataGen(data, baseStr):
     tmp=[]
     for i in range(len(data["points"])) :
@@ -33,9 +34,12 @@ def requestData(query):
     data = fixDataGen(data, ["time", "sequence_number", "power", "energy"])
     return data
 
+# Request data from the 'grupp5' serie
 def requestEventData(query):
+    # Switch database to 'grupp5'
     switchDatabase("grupp5")
     result = client.query(query)
+    # Switch database to 'Munktell'
     switchDatabase("Munktell")
     str2 = "".join(str(v) for v in result)
     str2 = str2.replace("'","\"")
@@ -43,6 +47,7 @@ def requestEventData(query):
     data = fixDataGen(data, ["time", "sequence_number", "value", "id", "priority"])
     return data
 
+# Send all points specified in 'list' to database
 def sendMultipleEvent(list):
     switchDatabase("grupp5")
     points = ""

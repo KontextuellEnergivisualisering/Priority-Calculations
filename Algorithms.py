@@ -1,6 +1,10 @@
+# Calculates the minimum power in the combined list with old data ('points') and new data ('lastHourData')
 def min(points, lastHourData):
     min = -1
+    # Check if points are from database
     if not isinstance(points[0][1], int):
+        # If points come from database, loop through every point until a point with 'min'
+        # is found, this points value will be the current minimum to compare to
         for a in points:
             if a[1].find("min") != -1:
                 min = a[0]
@@ -20,9 +24,13 @@ def min(points, lastHourData):
     else:
         return []
 
+# Calculates the minimum power in the combined list with old data ('points') and new data ('lastHourData')
 def max(points, lastHourData):
     max = -1
+    # Check if points are from database
     if not isinstance(points[0][1], int):
+        # If points come from database, loop through every point until a point with 'max'
+        # is found, this points value will be the current maximum to compare to
         for a in points:
             if a[1].find("max") != -1:
                 max = a[0]

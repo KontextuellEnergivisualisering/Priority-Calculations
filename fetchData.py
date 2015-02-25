@@ -6,13 +6,13 @@ import datetime
 import database
 from transitionAlgorithms import TransitionAlgorithms
 from averageAlgorithms import AverageAlgorithms
-from sendFramework import SendFramework
+from priorityFramework import PriorityFramework
 import Algorithms
 
 global lastTime
 global transitionAlgorithms
 global averageAlgorithms
-global sendFramework
+global priorityFramework
 
 # Start thread to run work every 60 seconds
 def work ():
@@ -33,22 +33,22 @@ def check():
     data = database.requestData(query)
     transitionAlgorithms.updatePoints(data["points"])
     average = averageAlgorithms.updateAverage(data["points"])
-    sendFramework.sendAverages(transitionAlgorithms.list)
+    priorityFramework.sendAverages(transitionAlgorithms.list)
     setTime(data)
 
 # Initialize database variable, connect to database, send query to influxDB to set the current time
 def init():
     global transitionAlgorithms
     global averageAlgorithms
-    global sendFramework
+    global priorityFramework
     transitionAlgorithms = TransitionAlgorithms()
     averageAlgorithms = AverageAlgorithms()
-    sendFramework = SendFramework()
-    sendFramework.addFunction(averageAlgorithms.calculateAverage, "long")
-    sendFramework.addFunction(transitionAlgorithms.lookForFastChange, "minute")
-    sendFramework.addFunction(transitionAlgorithms.lookForSlowChange, "minute")
-    sendFramework.addFunction(Algorithms.min, "long")
-    sendFramework.addFunction(Algorithms.max, "long")
+    priorityFramework = PriorityFramework()
+    priorityFramework.addFunction(averageAlgorithms.calculateAverage, "long")
+    priorityFramework.addFunction(transitionAlgorithms.lookForFastChange, "minute")
+    priorityFramework.addFunction(transitionAlgorithms.lookForSlowChange, "minute")
+    priorityFramework.addFunction(Algorithms.min, "long")
+    priorityFramework.addFunction(Algorithms.max, "long")
     database.connectToDatabase()
     query = 'select * from "test1" limit 2;'
     data = database.requestData(query)
