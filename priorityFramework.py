@@ -47,7 +47,7 @@ def fetchNCalc(id, time, listOfFunctions, postFix, lastHourData):
     data = database.requestEventData(query)
     eventPoints = []
     for funct in listOfFunctions:
-        # Run function
+        # Run function with arguments
         info = funct(data["points"], lastHourData)
         if (info != [] and info != None):
             # Add a postfix (suffix) to the end of id
