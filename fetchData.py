@@ -33,7 +33,7 @@ def check():
     data = database.requestData(query)
     transitionAlgorithms.updatePoints(data["points"])
     average = averageAlgorithms.updateAverage(data["points"])
-    priorityFramework.sendAverages(transitionAlgorithms.list)
+    priorityFramework.updatePriority(transitionAlgorithms.list)
     setTime(data)
 
 # Initialize database variable, connect to database, send query to influxDB to set the current time

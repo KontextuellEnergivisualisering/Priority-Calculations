@@ -57,8 +57,7 @@ def fetchNCalc(id, time, listOfFunctions, postFix, lastHourData):
 
 # Contains framework for priorities
 class PriorityFramework:
-
-  def __init__(self):
+    def __init__(self):
     #   save the last time the program uploads data to database, different time intervals
       self.previousMinute = datetime.datetime.now().minute
       self.previousHour = datetime.datetime.now().hour
@@ -76,8 +75,8 @@ class PriorityFramework:
         else:
             self.runLessOftenFunctions.append(f)
 
-  # Do priority based calculations baed on different time intervals
-  def updatePriority(self, lastHourData):
+    # Do priority based calculations baed on different time intervals
+    def updatePriority(self, lastHourData):
       currentTime = datetime.datetime.now()
       # send events to database if a minute has passed
       if currentTime.minute != self.previousMinute:
