@@ -12,17 +12,17 @@ class TransitionAlgorithms:
     stableTime = 3              # Minimum time to determine if power change is stable
     fastTime = 7               # Minimum time to determine if power change is fast
     slowTime = 30               # Minimum time to determine if power change is slow
-    fastChangeFound = 0
-    slowChangeFound = 0
+    fastChangeFound = 0         # Time when a fast power transtion occured
+    slowChangeFound = 0         # Time when a slow power transtion occured
 
     def __init__(self):
         index = 0
 
-    # Add 'points' to list and keeps the list under 1200 points and discard the oldest items
+    # Does things connected to updating points
     def updatePoints(self, points):
         self.list = self.keepListUpdated(points)
 
-    # Makes sure the points are less then 3600, if not less it removes points until number of points are less then 3600
+    # Makes sure the points are less then 3600, if not less it removes the oldest points until number of points are less then 3600
     def keepListUpdated(self, points):
         if len(points) > 1:
             points.pop()
@@ -34,6 +34,7 @@ class TransitionAlgorithms:
 
         return newList
 
+    # Searches through the points to detect when a quick change in power occurs
     def lookForFastChange(self, points, lastHourData):
         if lastHourData[0][0] > self.fastChangeFound:
             powerChange = self.lookForChange(self.stableTime, self.fastTime, lastHourData)
@@ -41,6 +42,7 @@ class TransitionAlgorithms:
                 self.fastChangeFound = lastHourData[0][0] + self.fastTime
                 return [powerChange, "fastTransition", 1]
 
+    # Searches through the points to detect when a slow change in power occurs
     def lookForSlowChange(self, points, lastHourData):
         if lastHourData[0][0] > self.slowChangeFound:
             powerChange = self.lookForChange(self.stableTime, self.slowTime, lastHourData)
@@ -48,7 +50,7 @@ class TransitionAlgorithms:
                 self.slowChangeFound = lastHourData[0][0] + self.slowTime
                 return [powerChange, "slowTransition", 1]
 
-    # Determine if a change in power has occured
+    # Determines if a change in power has occured, based on the two time parameters
     def lookForChange(self, shortTime, longTime, lastHourData):
         tup1 = self.checkForChange(shortTime, lastHourData)
         shortChange = tup1["change"]
