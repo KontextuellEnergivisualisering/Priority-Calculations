@@ -20,7 +20,7 @@ def min(points, lastHourData):
             change = 1
 
     if change == 1:
-        return [min, "min", 3]
+        return [min, "min", 3, int(time.time())]
     else:
         return []
 
@@ -39,13 +39,12 @@ def max(points, lastHourData):
         max = lastHourData[0][2]
 
     change = 0
-    print("max: "+str(max))
     for n in points:
         if n[2] > max:
             max = n[2]
             change = 1
 
     if change == 1:
-        return [max, "max", 3]
+        return [max, "max", 3, int(time.time())]
     else:
         return []

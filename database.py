@@ -1,6 +1,7 @@
 from influxdb import InfluxDBClient
 import json
 
+# Database client
 global client
 
 # Order data in a specific order specified by baseStr
@@ -28,9 +29,13 @@ def connectToDatabase():
 # Send request to influxDB to fetch data corresponding to the query 'query'
 def requestData(query):
     result = client.query(query)
+    # Convert the data to a string
     str2 = "".join(str(v) for v in result)
+    # Replace " with '
     str2 = str2.replace("'","\"")
+    # Convert the string to a JSON object
     data = json.loads(str2)
+    # Order data in a specific order
     data = fixDataGen(data, ["time", "sequence_number", "power", "energy"])
     return data
 
@@ -41,9 +46,13 @@ def requestEventData(query):
     result = client.query(query)
     # Switch database to 'Munktell'
     switchDatabase("Munktell")
+    # Convert the data to a string
     str2 = "".join(str(v) for v in result)
+    # Replace " with '
     str2 = str2.replace("'","\"")
+    # Convert the string to a JSON object
     data = json.loads(str2)
+    # Order data in a specific order
     data = fixDataGen(data, ["time", "sequence_number", "value", "id", "priority"])
     return data
 
@@ -52,15 +61,17 @@ def sendMultipleEvent(list):
     switchDatabase("grupp5")
     points = ""
     print("--------------------------------------")
+    # Format and concatinate all points from list
     for item in list:
-        a = "[" + str(item[0]) + ", \"" + item[1] + "\", " + str(item[2]) + "],"
-        print(a)
+        a = "[" + str(item[0]) + ", \"" + item[1] + "\", " + str(item[2]) + ", "+str(item[3])+"],"
         points += a
+        # Print the formated string for logging purpose
+        print(a)
 
-    # print("--------------------------------------")
+    # Remove last character (',')
     points = points[:-1]
-    json_body = "[{\"name\" : \"events\",\"columns\" : [\"value\", \"id\", \"priority\"],\"points\" : [" + points + "]}]"
-    # print("write: " + json_body)
+    json_body = "[{\"name\" : \"events\",\"columns\" : [\"value\", \"id\", \"priority\", \"time\"],\"points\" : [" + points + "]}]"
+    # Send points to influxDB
     client.write_points(json_body)
     switchDatabase("Munktell")
 
