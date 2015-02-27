@@ -8,7 +8,7 @@ class TransitionAlgorithms:
     # Initialize the power list to a empty list
     list = []
     slowThreshold = 3                 # Threshold for power change when slow transition
-    fastThreshold = 6                 # Threshold for power change when fast transition
+    fastThreshold = 8                 # Threshold for power change when fast transition
     stableTime = 5                    # Minimum time to determine if power change is stable
     fastTime = 40                     # Minimum time to determine if power change is fast
     slowTime = 1800                   # Minimum time to determine if power change is slow

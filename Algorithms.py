@@ -1,3 +1,5 @@
+import time
+
 # Calculates the minimum power in the combined list with old data ('points') and new data ('lastHourData')
 def min(points, lastHourData):
     min = -1

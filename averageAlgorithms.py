@@ -1,3 +1,5 @@
+import time
+
 # Contains algortithms for calculating average power consumption
 class AverageAlgorithms:
 
@@ -6,4 +8,4 @@ class AverageAlgorithms:
         f = lambda x: x[2]
         newSum = sum(map(f, points))
         average = newSum / len(points)
-        return [average, "average", 2, time.gmtime(0)]
+        return [average, "average", 2, int(time.time())]
