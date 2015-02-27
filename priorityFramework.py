@@ -1,6 +1,5 @@
 import time
 import datetime
-from find import find
 import database
 
 # Run every function in 'listOfFunctions' and store their response (if not empty response) in a list
@@ -79,8 +78,8 @@ class PriorityFramework:
     def updatePriority(self, lastHourData):
       currentTime = datetime.datetime.now()
       # send events to database if a minute has passed
-      if currentTime.minute != self.previousMinute:
-          self.previousMinute = currentTime.minute
+      if currentTime.second != self.previousMinute:
+          self.previousMinute = currentTime.second + 10
           res = calculateForMinute(self.runEveryMinuteFunctions, lastHourData)
           database.sendMultipleEvent(res)
 

@@ -1,33 +1,31 @@
 import time
 from find import find
+import statistics
 
 # Contains algortithms for detecting change in data points
 class TransitionAlgorithms:
 
-    # Initialize the list to a empty list
+    # Initialize the power list to a empty list
     list = []
-    stableThreshold = 0.01     # Threshold for power change when stable
-    slowThreshold = 0.02        # Threshold for power change when slow transition
-    fastThreshold = 0.03        # Threshold for power change when fast transition
-    stableTime = 3              # Minimum time to determine if power change is stable
-    fastTime = 7               # Minimum time to determine if power change is fast
-    slowTime = 30               # Minimum time to determine if power change is slow
-    fastChangeFound = 0         # Time when a fast power transtion occured
-    slowChangeFound = 0         # Time when a slow power transtion occured
-
-    def __init__(self):
-        index = 0
+    slowThreshold = 3                 # Threshold for power change when slow transition
+    fastThreshold = 6                 # Threshold for power change when fast transition
+    stableTime = 5                    # Minimum time to determine if power change is stable
+    fastTime = 40                     # Minimum time to determine if power change is fast
+    slowTime = 1800                   # Minimum time to determine if power change is slow
+    fastChangeFound = 0               # Time when a fast power transtion occured
+    slowChangeFound = 0               # Time when a slow power transtion occured
 
     # Does things connected to updating points
     def updatePoints(self, points):
         self.list = self.keepListUpdated(points)
 
-    # Makes sure the points are less then 3600, if not less it removes the oldest points until number of points are less then 3600
+    # Makes sure the points are less than 3600, if not less it removes the oldest points until number of points are less than 3600
     def keepListUpdated(self, points):
+        # Remove the last item because the data fetches the first item in previous query twice
         if len(points) > 1:
             points.pop()
 
-        # Concatenate new points with old points
+        # Concatenate new points with old points and keep number of points less than 3600
         newList = points + self.list
         while len(newList) > 3600:
             newList.pop()
@@ -36,49 +34,71 @@ class TransitionAlgorithms:
 
     # Searches through the points to detect when a quick change in power occurs
     def lookForFastChange(self, points, lastHourData):
+        # If it's long enough time since the last change was found look for another
         if lastHourData[0][0] > self.fastChangeFound:
-            powerChange = self.lookForChange(self.stableTime, self.fastTime, lastHourData)
+            tup = self.lookForChange(self.stableTime, self.fastTime, lastHourData, self.fastThreshold)
+            powerChange = tup["change"]
+            time = tup["time"]
             if powerChange != 0:
                 self.fastChangeFound = lastHourData[0][0] + self.fastTime
-                return [powerChange, "fastTransition", 1]
+                return [powerChange, "fastTransition", 1, time]
 
     # Searches through the points to detect when a slow change in power occurs
     def lookForSlowChange(self, points, lastHourData):
+        # If it's long enough time since the last change was found look for another
         if lastHourData[0][0] > self.slowChangeFound:
-            powerChange = self.lookForChange(self.stableTime, self.slowTime, lastHourData)
+            tup = self.lookForChange(self.stableTime, self.slowTime, lastHourData, self.slowThreshold)
+            powerChange = tup["change"]
+            time = tup["time"]
             if powerChange != 0:
                 self.slowChangeFound = lastHourData[0][0] + self.slowTime
-                return [powerChange, "slowTransition", 1]
+                return [powerChange, "slowTransition", 1, time]
 
     # Determines if a change in power has occured, based on the two time parameters
-    def lookForChange(self, shortTime, longTime, lastHourData):
+    def lookForChange(self, shortTime, longTime, lastHourData, threshold):
+        # Check for change in a small time span
         tup1 = self.checkForChange(shortTime, lastHourData)
         shortChange = tup1["change"]
+        # Check for change in a long time span
         tup = self.checkForChange(longTime, lastHourData)
         longChange = tup["change"]
         index = tup["index"]
-        if (abs(shortChange) <= self.stableThreshold and abs(longChange) >= self.fastThreshold):
-            return self.calculateHeightDiff(lastHourData[0], lastHourData[index])
+        # Calculate the ratio between the short time span and long timespan
+        diff = longChange / shortChange
+        print("difference: " + str(diff))
+        if (diff >= threshold):
+            # Return the maximum difference in power (negative or positive)
+            return self.calculateMaxDiff(lastHourData, index)
         else:
-            return 0
+            return {"change": 0, "time": 0}
 
-    # Check if there has been a change during the specified 'timeSpan' in seconds
+    # Examine the standard deviation between now and a point 'timespan' seconds away
     def checkForChange(self, timeSpan, points):
         # Find the index of the element whose time is the current time (self.list[0][0]) subtracted with the specified timespan
         index = find(points, points[0][0] - timeSpan)
         # Calculate the difference between the two points to get the change in power
-        change = (points[0][2] / points[index][2]) - 1
+        change = self.calculateStdev(points, index)
         return {"change":change, "index":index}
 
-    # Calculate the difference in power between two points
-    def calculateHeightDiff(self, pointNow, pointOld):
-        diff = pointNow[2] - pointOld[2]
-        return diff
+    # Calculate the standard deviation in range '0' to 'index'
+    def calculateStdev(self, points, index):
+        if index < 2:
+            return 0.0001
 
-    # Get the current lists length
-    def getLength(self):
-        return len(self.list)
+        p = points[:index]
+        f = lambda x: x[2]
+        p2 = map(f, p)
+        return statistics.stdev(p2)
 
-    # Returns the list
-    def getList(self):
-        return self.list
+
+    # Calculate the maximum difference in power between two points (negative or positive)
+    def calculateMaxDiff(self, points, index):
+        p = points[:index]
+        maxi = 0
+        maxIndex=0
+        for i in p:
+            if abs(p[0][2]-i[2]) > abs(maxi):
+                maxi = p[0][2]-i[2]
+                maxIndex = i
+
+        return {"change": maxi, "time": maxIndex[0]}
